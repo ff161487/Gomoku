@@ -16,10 +16,14 @@ def mox(x):
             if seg_idx not in scanned:
                 i = 2 * seg_idx + 1
                 # An edge case: the last segment
-                if (seg_idx == (n_seg - 1)) and (x[i] == 3):
-                    n_x += 1
-                    scanned.append(seg_idx)
+                if seg_idx == (n_seg - 1):
+                    cond_of1 = (x[i] == 3)
+                    cond_ot1 = (x[i] == 2) and (x[i - 1] > 0) and (x[i + 1] > 0)
+                    if cond_of1 or cond_ot1:
+                        n_x += 1
+                        scanned.append(seg_idx)
                 else:
+                    cond_of1 = (x[i] == 3)
                     cond_of2 = (x[i] + x[i + 2] > 1) and (x[i + 1] == 2)
                     cond_ot1 = (x[i] == 2) and (x[i - 1] > 0) and (x[i + 1] > 0)
                     cond_ot2 = (x[i] + x[i + 2] == 1) and (x[i + 1] == 2) and (x[i - 1] > 0) and (x[i + 3] > 0)
@@ -27,7 +31,7 @@ def mox(x):
                         n_x += 1
                         scanned.append(seg_idx)
                         scanned.append(seg_idx + 1)
-                    elif cond_ot1:
+                    elif cond_of1 or cond_ot1:
                         n_x += 1
                         scanned.append(seg_idx)
         return n_x >= 2
