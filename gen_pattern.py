@@ -65,9 +65,6 @@ def gen_ptt(n):
             comb.append(itr_p)
     comb.append(end_p)
     rst = list(product(*comb))
-    ex = [x for x in rst if mox(x)]
-    temp = [to_arr(x) for x in ex]
-    set_trace()
     rst = [x for x in rst if sum(x) >= 4 and not mox(x)]
     return rst
 
