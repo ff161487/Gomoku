@@ -1,22 +1,21 @@
 import numpy as np
-from time import perf_counter
+from gmk_score import compute_move
+from random import choices
 from pdb import set_trace
 
 
-def find_seg(cond):
-    scv = np.zeros(len(cond) + 2, dtype=bool)
-    scv[0], scv[-1] = False, False
-    scv[1:-1] = cond
-    start = np.nonzero(cond & ~scv[:-2])[0]
-    end = np.nonzero(cond & ~scv[2:])[0]
-    return list(zip(start, end))
+def make_board():
+    pos_b = [(x, y) for x in range(15) for y in range(15)]
+    pos_l = choices(pos_b, k=100)
+    board = np.zeros((15, 15), dtype='int8')
+    for i, pos in enumerate(pos_l):
+        board[pos] = 1 - 2 * (i % 2)
 
-
-def time_nz():
-    arr = np.random.randint(low=-1, high=2, size=15, dtype='int8')
-    find_seg((arr > -1))
+    # Test scoring
+    compute_move(board, pos_l[-1])
     set_trace()
 
 
 if __name__ == '__main__':
-    time_nz()
+    make_board()
+

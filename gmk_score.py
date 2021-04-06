@@ -19,65 +19,46 @@ def find_seg(cond):
     return list(zip(start, end))
 
 
-def pattern_matching(l_kb, pos, ptt, dp):
-    n_l = len(l_kb)
-    if n_l == 3:
-        if l_kb[1] == 1:
-            if l_kb[0] > 2 and l_kb[2] > 2:
-                ptt[5] += 1
-            else:
-                ptt[6] += 1
-        elif l_kb[1] == 2:
-            if l_kb[0] > 1 and l_kb[2] > 1:
-                ptt[3] += 1
-                dp[1].append('-'.join((str_pos(pos[l_kb[0] - 1], 'to_str'), str_pos(pos[l_kb[0] + 3], 'to_str'))))
-            elif l_kb[0] == 0:
-                ptt[4] += 1
-                dp[2].append('-'.join((str_pos(pos[3], 'to_str'), str_pos(pos[4], 'to_str'))))
-            elif l_kb[2] == 0:
-                ptt[4] += 1
-                dp[2].append('-'.join((str_pos(pos[l_kb[0] - 2], 'to_str'), str_pos(pos[l_kb[0] - 1], 'to_str'))))
-        elif l_kb[1] == 3:
-            if l_kb[0] > 0 and l_kb[2] > 0:
-                ptt[1] += 1
-                dp[0].append('-'.join((str_pos(pos[l_kb[0] - 1], 'to_str'), str_pos(pos[l_kb[0] + 4], 'to_str'))))
-            elif l_kb[0] == 0:
-                ptt[2] += 1
-                dp[0].append('-'.join((str_pos(pos[4], 'to_str'), str_pos(pos[5], 'to_str'))))
-            elif l_kb[2] == 0:
-                ptt[2] += 1
-                dp[0].append('-'.join((str_pos(pos[l_kb[0] - 2], 'to_str'), str_pos(pos[l_kb[0] - 1], 'to_str'))))
-    elif n_l == 5:
-        if l_kb[1] == 0 and l_kb[-2] == 0 and l_kb[2] in [2, 3]:
-            if l_kb[0] > 0 and l_kb[-1] > 0:
-                ptt[5] += 1
-            else:
-                ptt[6] += 1
-        elif False:
-            set_trace()
-    elif n_l == 7:
-        set_trace()
-    elif n_l == 9:
-        set_trace()
-
-
 def scan_kb(arr, pos, ptt, dp):
     n_a = len(arr)
     seg_k = find_seg(arr > 0)
-    l_kb = [0]
+    scanned = []
 
     # Search for 'Five(or more) in a Row', if find it, just win
-    for seg in seg_k:
-        l_kb.extend(seg)
-        if seg[1] - seg[0] >= 4:
-            ptt[0] += 1
-            return None
-    l_kb.append(n_a - 1)
-
-    # Here, we focus on 4, 3, 2 after searching for 5(>5)
-    # Exclude redundant blank point
-    l_kb = [l_kb[i] - l_kb[i - 1] for i in range(1, len(l_kb))]
-    pattern_matching(l_kb, pos, ptt, dp)
+    for i, seg in enumerate(seg_k):
+        if i not in scanned:
+            scanned.append(i)
+            if seg[1] - seg[0] >= 4:
+                ptt[0] += 1
+                return None
+            elif seg[1] - seg[0] == 3:
+                if seg[0] > 0 and seg[1] < n_a - 1:
+                    ptt[1] += 1
+                    dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
+                elif seg[0] == 0:
+                    ptt[2] += 1
+                    dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
+                elif seg[1] == n_a - 1:
+                    ptt[2] += 1
+                    dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
+                if i > 0:
+                    if seg[0] - seg_k[i - 1][1] == 2:
+                        scanned.append(i - 1)
+                if i < len(seg_k) - 1:
+                    if seg_k[i + 1][0] - seg[1] == 2:
+                        scanned.append(i + 1)
+            elif seg[1] - seg[0] == 2:
+                if seg[0] > 0 and seg[1] < n_a - 1:
+                    if True:
+                        set_trace()
+                elif seg[0] == 0:
+                    ptt[4] += 1
+                    dp[2].append('-'.join((str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 2], 'to_str'))))
+                elif seg[1] == n_a - 1:
+                    ptt[4] += 1
+                    dp[2].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] - 2], 'to_str'))))
+            elif seg[1] - seg[0] == 1:
+                set_trace()
     set_trace()
 
 
@@ -95,19 +76,16 @@ def scan_kbw(arr, pos):
 
 def compute_move(board, pos):
     # Get board array and position array
+    ply = board[pos]
     pos_h = [(pos[0], x) for x in range(15)]
     pos_v = [(x, pos[1]) for x in range(15)]
     pos_d = [(pos[0] + x, pos[1] + x) for x in range(-min(pos), 15 - max(pos))]
     pos_a = [(pos[0] + x, pos[1] - x) for x in range(-min(pos[0], 14 - pos[1]), min(14 - pos[0], pos[1]) + 1)]
+    idx_h, idx_v, idx_d, idx_a = pos[1], pos[0], pos_d.index(pos), pos_a.index(pos)
+    arr_h, arr_v, arr_d, arr_a = (ply * board[pos[0]]).copy(), (ply * board[pos[1]]).copy(), (ply * board[tuple(zip(
+        *pos_d))]).copy(), (ply * board[tuple(zip(*pos_a))]).copy()
 
     # Slice using 'board[tuple(zip(*pos))]'
-    scan_kbw(board[pos[0]], pos_h)
+    scan_kbw(arr_h, pos_h)
     set_trace()
     return pos
-
-
-if __name__ == '__main__':
-    bd = np.random.randint(low=-12, high=12, size=(15, 15))
-    bd = np.round(bd / 10).astype('int8')
-    rs = compute_move(bd, (7, 8))
-    set_trace()
