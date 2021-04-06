@@ -1,5 +1,5 @@
 import numpy as np
-from gmk_score import compute_move
+from gmk_score import compute_move, scan_kb
 from random import choices
 from pdb import set_trace
 
@@ -16,6 +16,14 @@ def make_board():
     set_trace()
 
 
+def test_scan_kb():
+    ptt = np.zeros(7, dtype='uint8')
+    dp = [[], [], []]
+    arr = np.array([0, 1, 1, 1, 0, 0, 1, 1, 0, 0], dtype='int8')
+    pos = [(7, x) for x in range(len(arr))]
+    scan_kb(arr, pos, ptt, dp)
+
+
 if __name__ == '__main__':
-    make_board()
+    test_scan_kb()
 

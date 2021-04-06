@@ -26,7 +26,7 @@ def scan_kb(arr, pos, ptt, dp):
 
     # Search for 'Five(or more) in a Row', if find it, just win
     for i, seg in enumerate(seg_k):
-        if i not in scanned:
+        if i not in scanned and seg[1] - seg[0] > 0:
             scanned.append(i)
             if seg[1] - seg[0] >= 4:
                 ptt[0] += 1
@@ -48,17 +48,30 @@ def scan_kb(arr, pos, ptt, dp):
                     if seg_k[i + 1][0] - seg[1] == 2:
                         scanned.append(i + 1)
             elif seg[1] - seg[0] == 2:
-                if seg[0] > 0 and seg[1] < n_a - 1:
-                    if True:
-                        set_trace()
-                elif seg[0] == 0:
-                    ptt[4] += 1
-                    dp[2].append('-'.join((str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 2], 'to_str'))))
-                elif seg[1] == n_a - 1:
-                    ptt[4] += 1
-                    dp[2].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] - 2], 'to_str'))))
+                cond_l = False
+                cond_r = False
+                if i > 0:
+                    if seg[0] - seg_k[i - 1][1] == 2:
+                        scanned.append(i - 1)
+                        cond_l = True
+                if i < len(seg_k) - 1:
+                    if seg_k[i + 1][0] - seg[1] == 2:
+                        scanned.append(i + 1)
+                        cond_r = True
+                if cond_l and cond_r:
+                    ptt[1] += 1
+                    dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
+                elif cond_r and not cond_l:
+                    ptt[2] += 1
+                    dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
+                elif cond_l and not cond_r:
+                    ptt[2] += 1
+                    dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
+                else:
+                    set_trace()
             elif seg[1] - seg[0] == 1:
                 set_trace()
+            print("Finished")
     set_trace()
 
 
