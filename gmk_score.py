@@ -68,10 +68,18 @@ def scan_kb(arr, pos, ptt, dp):
                     ptt[2] += 1
                     dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
                 else:
-                    set_trace()
+                    if seg[0] == 0:
+                        ptt[4] += 1
+                        dp[2].append('-'.join((str_pos(pos[3], 'to_str'), str_pos(pos[4], 'to_str'))))
+                    elif seg[1] == n_a - 1:
+                        ptt[4] += 1
+                        dp[2].append('-'.join((str_pos(pos[n_a - 4], 'to_str'), str_pos(pos[n_a - 5], 'to_str'))))
+                    else:
+                        ptt[3] += 1
+                        dp[1].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] + 3], 'to_str'))))
             elif seg[1] - seg[0] == 1:
+                n_l, n_r = -1, -1
                 set_trace()
-            print("Finished")
     set_trace()
 
 
