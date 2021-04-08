@@ -78,7 +78,7 @@ def scan_kb(arr, pos, ptt, dp):
                         ptt[3] += 1
                         dp[1].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] + 3], 'to_str'))))
             elif seg[1] - seg[0] == 1:
-                n_l, n_r = -1, -1
+                tup_l, tup_r = (-1, -1, 0), (-1, -1, 0)
                 set_trace()
     set_trace()
 
