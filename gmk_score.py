@@ -78,9 +78,34 @@ def scan_kb(arr, pos, ptt, dp):
                         ptt[3] += 1
                         dp[1].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] + 3], 'to_str'))))
             elif seg[1] - seg[0] == 1:
-                tup_l, tup_r = (-1, -1, 0), (-1, -1, 0)
-                set_trace()
-    set_trace()
+                tup_l, tup_r = [-1, -1, 0], [-1, -1, 0]
+                if i > 0:
+                    tup_l = [seg[0] - seg_k[i - 1][1], seg_k[i - 1][1] - seg_k[i - 1][0], seg_k[i - 1][0]]
+                else:
+                    tup_l[2] = seg[0]
+                if i < len(seg_k) - 1:
+                    tup_r = [seg_k[i + 1][0] - seg[1], seg_k[i + 1][1] - seg_k[i + 1][0], n_a - 1 - seg_k[i + 1][1]]
+                else:
+                    tup_r[2] = n_a - 1 - seg[1]
+                # Opened Four
+                if tup_l[0] == 2 and tup_l[1] > 0 and tup_r[0] == 2 and tup_r[1] > 0:
+                    ptt[1] += 1
+                    dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
+                    scanned.extend([i - 1, i + 1])
+                # Blocked Four
+                elif tup_l[0] == 2 and tup_l[1] > 0 and (tup_r[0] != 2 or tup_r[1] <= 0):
+                    ptt[2] += 1
+                    dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
+                    scanned.append(i - 1)
+                elif tup_r[0] == 2 and tup_r[1] > 0 and (tup_l[0] != 2 or tup_l[1] <= 0):
+                    ptt[2] += 1
+                    dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
+                    scanned.append(i + 1)
+                # Opened Three
+
+                # Blocked Three
+                # Opened Two
+                # Blocked Two
 
 
 def scan_kbw(arr, pos):
