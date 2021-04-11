@@ -29,12 +29,15 @@ def scan_kb(arr, pos, ptt, dp):
         if i not in scanned and seg[1] - seg[0] > 0:
             scanned.append(i)
             if seg[1] - seg[0] >= 4:
+                # Win by connected 5 or more
                 ptt[0] += 1
                 return None
             elif seg[1] - seg[0] == 3:
+                # Opened Four
                 if seg[0] > 0 and seg[1] < n_a - 1:
                     ptt[1] += 1
                     dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
+                # Blocked Four
                 elif seg[0] == 0:
                     ptt[2] += 1
                     dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
@@ -58,9 +61,11 @@ def scan_kb(arr, pos, ptt, dp):
                     if seg_k[i + 1][0] - seg[1] == 2:
                         scanned.append(i + 1)
                         cond_r = True
+                # Opened Four
                 if cond_l and cond_r:
                     ptt[1] += 1
                     dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
+                # Blocked Four
                 elif cond_r and not cond_l:
                     ptt[2] += 1
                     dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
@@ -68,15 +73,18 @@ def scan_kb(arr, pos, ptt, dp):
                     ptt[2] += 1
                     dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
                 else:
+                    # Blocked Three
                     if seg[0] == 0:
                         ptt[4] += 1
                         dp[2].append('-'.join((str_pos(pos[3], 'to_str'), str_pos(pos[4], 'to_str'))))
                     elif seg[1] == n_a - 1:
                         ptt[4] += 1
                         dp[2].append('-'.join((str_pos(pos[n_a - 4], 'to_str'), str_pos(pos[n_a - 5], 'to_str'))))
+                    # Opened Three
                     else:
                         ptt[3] += 1
-                        dp[1].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] + 3], 'to_str'))))
+                        p1, p2 = str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] + 3], 'to_str')
+                        dp[1].append('{0}({1})-{1}({0})'.format(p1, p2))
             elif seg[1] - seg[0] == 1:
                 tup_l, tup_r = [-1, -1, 0], [-1, -1, 0]
                 if i > 0:
