@@ -110,8 +110,33 @@ def scan_kb(arr, pos, ptt, dp):
                     dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
                     scanned.append(i + 1)
                 # Opened Three
-
+                if tup_l[:2] == [2, 0] and tup_l[2] > 0 and tup_r[:2] == [2, 0] and tup_r[2] > 0:
+                    ptt[3] += 1
+                    p1, p2, p3, p4 = (str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
+                                      str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 3], 'to_str'))
+                    dp[1].append('{1}({2},{3})-{2}({0},{1})'.format(p1, p2, p3, p4))
+                    scanned.extend([i - 1, i + 1])
+                elif tup_l[:2] == [2, 0] and tup_l[2] > 0 and (3 * (tup_r[2] > 0) - tup_r[0] != 1):
+                    ptt[3] += 1
+                    p1, p2, p3 = (str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
+                                  str_pos(pos[seg[1] + 1], 'to_str'))
+                    dp[1].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
+                    scanned.append(i - 1)
+                elif tup_r[:2] == [2, 0] and tup_r[2] > 0 and (3 * (tup_l[2] > 0) - tup_l[0] != 1):
+                    ptt[3] += 1
+                    p1, p2, p3 = (str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'),
+                                  str_pos(pos[seg[1] + 3], 'to_str'))
+                    dp[1].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
+                    scanned.append(i + 1)
                 # Blocked Three
+                if tup_l == [2, 0, 0] or tup_r == [2, 0, 0]:
+                    ptt[4] += 1
+                    dp[2].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
+                    if tup_l == [2, 0, 0]:
+                        scanned.append(i - 1)
+                    if tup_r == [2, 0, 0]:
+                        scanned.append(i + 1)
+                set_trace()
                 # Opened Two
                 # Blocked Two
 
