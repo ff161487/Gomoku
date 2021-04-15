@@ -19,6 +19,23 @@ def find_seg(cond):
     return list(zip(start, end))
 
 
+def ep_encode(ep):
+    if ep == [-1, -1, 0]:
+        return 0
+    elif ep[:2] == [-1, -1] and ep[2] > 0:
+        return 1
+    elif ep == [2, 0, 0]:
+        return 2
+    elif ep[:2] == [2, 0] and ep[2] > 0:
+        return 3
+    elif ep[0] == 2 and ep[1] > 0:
+        return 4
+    elif ep[0] == 3:
+        return 5
+    elif ep[0] > 3:
+        return 6
+
+
 def scan_kb(arr, pos, ptt, dp):
     n_a = len(arr)
     seg_k = find_seg(arr > 0)
@@ -86,57 +103,65 @@ def scan_kb(arr, pos, ptt, dp):
                         p1, p2 = str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] + 3], 'to_str')
                         dp[1].append('{0}({1})-{1}({0})'.format(p1, p2))
             elif seg[1] - seg[0] == 1:
-                tup_l, tup_r = [-1, -1, 0], [-1, -1, 0]
+                ep_l, ep_r = [-1, -1, 0], [-1, -1, 0]
                 if i > 0:
-                    tup_l = [seg[0] - seg_k[i - 1][1], seg_k[i - 1][1] - seg_k[i - 1][0], seg_k[i - 1][0]]
+                    ep_l = [seg[0] - seg_k[i - 1][1], seg_k[i - 1][1] - seg_k[i - 1][0], seg_k[i - 1][0]]
                 else:
-                    tup_l[2] = seg[0]
+                    ep_l[2] = seg[0]
                 if i < len(seg_k) - 1:
-                    tup_r = [seg_k[i + 1][0] - seg[1], seg_k[i + 1][1] - seg_k[i + 1][0], n_a - 1 - seg_k[i + 1][1]]
+                    ep_r = [seg_k[i + 1][0] - seg[1], seg_k[i + 1][1] - seg_k[i + 1][0], n_a - 1 - seg_k[i + 1][1]]
                 else:
-                    tup_r[2] = n_a - 1 - seg[1]
+                    ep_r[2] = n_a - 1 - seg[1]
+                epe = (ep_encode(ep_l), ep_encode(ep_r))
+                set_trace()
+
                 # Opened Four
-                if tup_l[0] == 2 and tup_l[1] > 0 and tup_r[0] == 2 and tup_r[1] > 0:
+                if ep_l[0] == 2 and ep_l[1] > 0 and ep_r[0] == 2 and ep_r[1] > 0:
                     ptt[1] += 1
                     dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
                     scanned.extend([i - 1, i + 1])
                 # Blocked Four
-                elif tup_l[0] == 2 and tup_l[1] > 0 and (tup_r[0] != 2 or tup_r[1] <= 0):
+                elif ep_l[0] == 2 and ep_l[1] > 0 and (ep_r[0] != 2 or ep_r[1] <= 0):
                     ptt[2] += 1
                     dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
                     scanned.append(i - 1)
-                elif tup_r[0] == 2 and tup_r[1] > 0 and (tup_l[0] != 2 or tup_l[1] <= 0):
+                elif ep_r[0] == 2 and ep_r[1] > 0 and (ep_l[0] != 2 or ep_l[1] <= 0):
                     ptt[2] += 1
                     dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
                     scanned.append(i + 1)
                 # Opened Three
-                if tup_l[:2] == [2, 0] and tup_l[2] > 0 and tup_r[:2] == [2, 0] and tup_r[2] > 0:
+                if ep_l[:2] == [2, 0] and ep_l[2] > 0 and ep_r[:2] == [2, 0] and ep_r[2] > 0:
                     ptt[3] += 1
                     p1, p2, p3, p4 = (str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
                                       str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 3], 'to_str'))
                     dp[1].append('{1}({2},{3})-{2}({0},{1})'.format(p1, p2, p3, p4))
                     scanned.extend([i - 1, i + 1])
-                elif tup_l[:2] == [2, 0] and tup_l[2] > 0 and (3 * (tup_r[2] > 0) - tup_r[0] != 1):
+                elif ep_l[:2] == [2, 0] and ep_l[2] > 0 and (3 * (ep_r[2] > 0) - ep_r[0] != 1):
                     ptt[3] += 1
                     p1, p2, p3 = (str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
                                   str_pos(pos[seg[1] + 1], 'to_str'))
                     dp[1].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
                     scanned.append(i - 1)
-                elif tup_r[:2] == [2, 0] and tup_r[2] > 0 and (3 * (tup_l[2] > 0) - tup_l[0] != 1):
+                elif ep_r[:2] == [2, 0] and ep_r[2] > 0 and (3 * (ep_l[2] > 0) - ep_l[0] != 1):
                     ptt[3] += 1
                     p1, p2, p3 = (str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'),
                                   str_pos(pos[seg[1] + 3], 'to_str'))
                     dp[1].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
                     scanned.append(i + 1)
                 # Blocked Three
-                if tup_l == [2, 0, 0] or tup_r == [2, 0, 0]:
+                if ep_l == [2, 0, 0] or ep_r == [2, 0, 0]:
                     ptt[4] += 1
                     dp[2].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
-                    if tup_l == [2, 0, 0]:
+                    if ep_l == [2, 0, 0]:
                         scanned.append(i - 1)
-                    if tup_r == [2, 0, 0]:
+                    if ep_r == [2, 0, 0]:
                         scanned.append(i + 1)
-                set_trace()
+                elif ep_l[:2] == [2, 0] and ep_l[2] > 0 and ep_r == [-1, -1, 0]:
+                    ptt[4] += 1
+                    set_trace()
+                elif ep_r[:2] == [2, 0] and ep_r[2] > 0 and ep_l == [-1, -1, 0]:
+                    ptt[4] += 1
+                    set_trace()
                 # Opened Two
                 # Blocked Two
 
