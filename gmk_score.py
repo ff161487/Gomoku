@@ -113,36 +113,35 @@ def scan_kb(arr, pos, ptt, dp):
                 else:
                     ep_r[2] = n_a - 1 - seg[1]
                 epe = (ep_encode(ep_l), ep_encode(ep_r))
-                set_trace()
 
                 # Opened Four
-                if ep_l[0] == 2 and ep_l[1] > 0 and ep_r[0] == 2 and ep_r[1] > 0:
+                if epe == (4, 4):
                     ptt[1] += 1
                     dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
                     scanned.extend([i - 1, i + 1])
                 # Blocked Four
-                elif ep_l[0] == 2 and ep_l[1] > 0 and (ep_r[0] != 2 or ep_r[1] <= 0):
+                elif epe[0] == 4 and epe[1] != 4:
                     ptt[2] += 1
                     dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
                     scanned.append(i - 1)
-                elif ep_r[0] == 2 and ep_r[1] > 0 and (ep_l[0] != 2 or ep_l[1] <= 0):
+                elif epe[1] == 4 and epe[0] != 4:
                     ptt[2] += 1
                     dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
                     scanned.append(i + 1)
                 # Opened Three
-                if ep_l[:2] == [2, 0] and ep_l[2] > 0 and ep_r[:2] == [2, 0] and ep_r[2] > 0:
+                if epe == (3, 3):
                     ptt[3] += 1
                     p1, p2, p3, p4 = (str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
                                       str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 3], 'to_str'))
                     dp[1].append('{1}({2},{3})-{2}({0},{1})'.format(p1, p2, p3, p4))
                     scanned.extend([i - 1, i + 1])
-                elif ep_l[:2] == [2, 0] and ep_l[2] > 0 and (3 * (ep_r[2] > 0) - ep_r[0] != 1):
+                elif epe[0] == 3 and epe[1] not in [0, 4]:
                     ptt[3] += 1
                     p1, p2, p3 = (str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
                                   str_pos(pos[seg[1] + 1], 'to_str'))
                     dp[1].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
                     scanned.append(i - 1)
-                elif ep_r[:2] == [2, 0] and ep_r[2] > 0 and (3 * (ep_l[2] > 0) - ep_l[0] != 1):
+                elif epe[1] == 3 and epe[0] not in [0, 4]:
                     ptt[3] += 1
                     p1, p2, p3 = (str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'),
                                   str_pos(pos[seg[1] + 3], 'to_str'))
