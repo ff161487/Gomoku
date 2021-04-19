@@ -148,21 +148,24 @@ def scan_kb(arr, pos, ptt, dp):
                     dp[1].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
                     scanned.append(i + 1)
                 # Blocked Three
-                if ep_l == [2, 0, 0] or ep_r == [2, 0, 0]:
+                if epe == (5, 5):
                     ptt[4] += 1
-                    dp[2].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
-                    if ep_l == [2, 0, 0]:
-                        scanned.append(i - 1)
-                    if ep_r == [2, 0, 0]:
-                        scanned.append(i + 1)
-                elif ep_l[:2] == [2, 0] and ep_l[2] > 0 and ep_r == [-1, -1, 0]:
+                    p1, p2, p3, p4 = (str_pos(pos[seg[0] - 2], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
+                                      str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 2], 'to_str'))
+                    dp[2].append('{0}-{1}_{2}-{3}'.format(p1, p2, p3, p4))
+                elif epe in [(5, 0), (5, 1), (5, 6)]:
                     ptt[4] += 1
                     set_trace()
+                    scanned.append(i - 1)
                 elif ep_r[:2] == [2, 0] and ep_r[2] > 0 and ep_l == [-1, -1, 0]:
                     ptt[4] += 1
                     set_trace()
                 # Opened Two
+                if epe in [(1, 1), (1, 6), (6, 1), (6, 6)]:
+                    ptt[5] += 1
                 # Blocked Two
+                elif epe in [(0, 1), (1, 0), (0, 6), (6, 0)]:
+                    ptt[6] += 1
 
 
 def scan_kbw(arr, pos):
