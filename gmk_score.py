@@ -153,6 +153,7 @@ def scan_kb(arr, pos, ptt, dp):
                     p1, p2, p3, p4 = (str_pos(pos[seg[0] - 2], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
                                       str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 2], 'to_str'))
                     dp[2].append('{0}-{1}_{2}-{3}'.format(p1, p2, p3, p4))
+                    scanned.extend([i - 1, i + 1])
                 elif epe in [(5, 0), (5, 1), (5, 6)]:
                     ptt[4] += 1
                     dp[2].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] - 2], 'to_str'))))
@@ -161,13 +162,49 @@ def scan_kb(arr, pos, ptt, dp):
                     ptt[4] += 1
                     dp[2].append('-'.join((str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 2], 'to_str'))))
                     scanned.append(i + 1)
-
+                elif epe == (5, 2):
+                    ptt[4] += 1
+                    p1, p2, p3 = (str_pos(pos[seg[0] - 2], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
+                                  str_pos(pos[seg[1] + 1], 'to_str'))
+                    dp[2].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
+                    scanned.extend([i - 1, i + 1])
+                elif epe == (2, 5):
+                    ptt[4] += 1
+                    p1, p2, p3 = (str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'),
+                                  str_pos(pos[seg[1] + 2], 'to_str'))
+                    dp[2].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
+                    scanned.extend([i - 1, i + 1])
+                elif epe in [(6, 2), (2, 2), (1, 2), (2, 1), (2, 6)]:
+                    ptt[4] += 1
+                    dp[2].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
+                    if epe == (2, 2):
+                        scanned.extend([i - 1, i + 1])
+                    elif epe in [(6, 2), (1, 2)]:
+                        scanned.append(i + 1)
+                    elif epe in [(2, 6), (2, 1)]:
+                        scanned.append(i - 1)
+                elif epe == (3, 0):
+                    ptt[4] += 1
+                    dp[2].append('-'.join((str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'))))
+                    scanned.append(i - 1)
+                elif epe == (0, 3):
+                    ptt[4] += 1
+                    dp[2].append('-'.join((str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 3], 'to_str'))))
+                    scanned.append(i + 1)
                 # Opened Two
                 elif epe in [(1, 1), (1, 6), (6, 1), (6, 6)]:
                     ptt[5] += 1
                 # Blocked Two
                 elif epe in [(0, 1), (1, 0), (0, 6), (6, 0)]:
                     ptt[6] += 1
+
+    # The 'leftover' will be 'single-stone segment'
+    un_scanned = [j for j in range(len(seg_k)) if j not in scanned]
+    while len(un_scanned) > 0:
+        j = un_scanned.pop(0)  # Take the first element out of un_scanned
+        scanned.append(j)  # Append this element to scanned
+        if (j + 1) in un_scanned:
+            set_trace()
 
 
 def scan_kbw(arr, pos):
