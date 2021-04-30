@@ -10,6 +10,35 @@ def str_pos(x, kind):
     return rst
 
 
+def heuristic(ptt):
+    if ptt[0] > 0:
+        return 100000
+    elif (ptt[1] > 0) or (ptt[2] > 1):
+        return 10000
+    elif (ptt[2] > 0) and (ptt[3] > 0):
+        return 7500
+    elif ptt[3] > 1:
+        return 5000
+    elif (ptt[3] == 1) and (ptt[4] > 0):
+        return 1000
+    elif ptt[2] == 1:
+        return 500
+    elif ptt[3] == 1:
+        return 200
+    elif ptt[5] > 1:
+        return 100
+    elif ptt[4] == 1:
+        return 50
+    elif (ptt[5] == 1) and (ptt[6] > 0):
+        return 10
+    elif ptt[5] == 1:
+        return 5
+    elif ptt[6] == 1:
+        return 3
+    else:
+        return 1
+
+
 def find_seg(cond):
     scv = np.zeros(len(cond) + 2, dtype=bool)
     scv[0], scv[-1] = False, False
@@ -204,6 +233,10 @@ def scan_kb(arr, pos, ptt, dp):
         j = un_scanned.pop(0)  # Take the first element out of un_scanned
         scanned.append(j)  # Append this element to scanned
         if (j + 1) in un_scanned:
+            if seg_k[j + 1][0] - seg_k[j][0] <= 4:
+                un_scanned.pop(0)
+                scanned.append(j + 1)
+
             set_trace()
 
 
