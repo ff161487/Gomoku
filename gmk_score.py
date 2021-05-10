@@ -233,10 +233,15 @@ def scan_kb(arr, pos, ptt, dp):
         j = un_scanned.pop(0)  # Take the first element out of un_scanned
         scanned.append(j)  # Append this element to scanned
         if (j + 1) in un_scanned:
-            if seg_k[j + 1][0] - seg_k[j][0] <= 4:
+            dis = seg_k[j + 1][0] - seg_k[j][0]
+            if dis <= 4:
                 un_scanned.pop(0)
                 scanned.append(j + 1)
-
+                if dis > 2:
+                    if seg_k[j][0] > 0 and seg_k[j + 1][0] < n_a - 1:
+                        set_trace()
+                else:
+                    set_trace()
             set_trace()
 
 
