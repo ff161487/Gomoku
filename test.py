@@ -19,7 +19,7 @@ def make_board():
 def test_scan_kb():
     ptt = np.zeros(7, dtype='uint8')
     dp = [[], [], []]
-    arr = np.array([1, 1, 0, 1, 0, 1], dtype='int8')
+    arr = np.array([1, 0, 0, 1, 0, 1, 0, 0, 1, 0], dtype='int8')
     pos = [(7, x) for x in range(len(arr))]
     scan_kb(arr, pos, ptt, dp)
 

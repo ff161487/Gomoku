@@ -65,6 +65,11 @@ def ep_encode(ep):
         return 6
 
 
+def ss_encode(ss, n_a):
+    set_trace()
+    return 1
+
+
 def scan_kb(arr, pos, ptt, dp):
     n_a = len(arr)
     seg_k = find_seg(arr > 0)
@@ -232,6 +237,20 @@ def scan_kb(arr, pos, ptt, dp):
     while len(un_scanned) > 0:
         j = un_scanned.pop(0)  # Take the first element out of un_scanned
         scanned.append(j)  # Append this element to scanned
+
+        # Define 'single-stone' pattern matrix
+        ss = np.full((4, 2), -1, 'int8')
+        ss[0] = [j, seg_k[j][0]]
+        if len(un_scanned) > 0:
+            ss[1] = [un_scanned[0], seg_k[un_scanned[0]][0]]
+            if len(un_scanned) > 1:
+                ss[2] = [un_scanned[1], seg_k[un_scanned[1]][0]]
+                if len(un_scanned) > 2:
+                    ss[3] = [un_scanned[2], seg_k[un_scanned[2]][0]]
+
+        # Encode pattern
+        sse = ss_encode(ss, n_a)
+        set_trace()
         if (j + 1) in un_scanned:
             dis = seg_k[j + 1][0] - seg_k[j][0]
             if dis <= 4:
@@ -239,6 +258,8 @@ def scan_kb(arr, pos, ptt, dp):
                 scanned.append(j + 1)
                 if dis > 2:
                     if seg_k[j][0] > 0 and seg_k[j + 1][0] < n_a - 1:
+
+                        ptt[5] += 1
                         set_trace()
                 else:
                     set_trace()
