@@ -66,6 +66,7 @@ def ep_encode(ep):
 
 
 def ss_encode(ss, n_a):
+
     set_trace()
     return 1
 
@@ -249,6 +250,7 @@ def scan_kb(arr, pos, ptt, dp):
                     ss[3] = [un_scanned[2], seg_k[un_scanned[2]][0]]
 
         # Encode pattern
+        set_trace()
         sse = ss_encode(ss, n_a)
         set_trace()
         if (j + 1) in un_scanned:
