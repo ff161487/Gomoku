@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from easyAI import TwoPlayersGame
-from gmk_score import legal, dsc, find_five
+from easyAI import TwoPlayerGame
+from gmk_score import str_pos, dsc, find_five
 from pdb import set_trace
 
 plt.ion()
 
 
-class Gomoku(TwoPlayersGame):
+class Gomoku(TwoPlayerGame):
     def __init__(self, players, moves=[], show=False):
         self.players = players
         self.board = np.zeros((15, 15), dtype='int8')

@@ -132,11 +132,21 @@ def scan_kb(arr, pos, ptt, dp):
                     elif seg[1] == n_a - 1:
                         ptt[4] += 1
                         dp[2].append('-'.join((str_pos(pos[n_a - 4], 'to_str'), str_pos(pos[n_a - 5], 'to_str'))))
+                    elif seg[0] == 1 and seg[1] == n_a - 2:
+                        ptt[4] += 1
+                        dp[2].append('-'.join((str_pos(pos[0], 'to_str'), str_pos(pos[n_a - 1], 'to_str'))))
                     # Opened Three
                     else:
                         ptt[3] += 1
                         p1, p2 = str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] + 3], 'to_str')
-                        dp[1].append('{0}({1})-{1}({0})'.format(p1, p2))
+                        if seg[0] == 1 and seg[1] != n_a - 2:
+                            dp[1].append(f'{p2}')
+                            dp[2].append(f'{p1}')
+                        elif seg[0] != 1 and seg[1] == n_a - 2:
+                            dp[1].append(f'{p1}')
+                            dp[2].append(f'{p2}')
+                        else:
+                            dp[1].append('{0}({1})-{1}({0})'.format(p1, p2))
             elif seg[1] - seg[0] == 1:
                 ep_l, ep_r = [-1, -1, 0], [-1, -1, 0]
                 if i > 0:
@@ -235,6 +245,7 @@ def scan_kb(arr, pos, ptt, dp):
 
     # The 'leftover' will be 'single-stone segment'
     un_scanned = [j for j in range(len(seg_k)) if j not in scanned]
+    set_trace()
     while len(un_scanned) > 0:
         j = un_scanned.pop(0)  # Take the first element out of un_scanned
         scanned.append(j)  # Append this element to scanned
