@@ -27,7 +27,6 @@ class Gomoku(TwoPlayerGame):
             return ['H8']
         else:
             # Get defence points at last move
-            pm_l = dist2points(self.board)
             if len(self.dp) > 0:
                 dp_ply, dp_op = self.dp[-1][self.current_player - 1], self.dp[-1][self.opponent_index - 1]
                 # For now, we only focus on defense of 'Five'
@@ -37,10 +36,15 @@ class Gomoku(TwoPlayerGame):
                     return dp_ply
                 elif len(dp_op) > 0:
                     return dp_op
-            return pm_l
+                else:
+                    return dist2points(self.board)
+            else:
+                return dist2points(self.board)
 
     def make_move(self, move):
         # Change board
+        if move in self.moves:
+            set_trace()
         pos = str_pos(move, 'to_pos')
         self.board[pos[0], pos[1]] = self.opponent_index - self.current_player
 

@@ -154,7 +154,7 @@ def compute_move(board, pos):
     pos_v = [(x, pos[1]) for x in range(15)]
     pos_d = [(pos[0] + x, pos[1] + x) for x in range(-min(pos), 15 - max(pos))]
     pos_a = [(pos[0] + x, pos[1] - x) for x in range(-min(pos[0], 14 - pos[1]), min(14 - pos[0], pos[1]) + 1)]
-    arr_h, arr_v, arr_d, arr_a = (ply * board[pos[0]]).copy(), (ply * board[pos[1]]).copy(), (ply * board[tuple(zip(
+    arr_h, arr_v, arr_d, arr_a = (ply * board[pos[0]]).copy(), (ply * board[:, pos[1]]).copy(), (ply * board[tuple(zip(
         *pos_d))]).copy(), (ply * board[tuple(zip(*pos_a))]).copy()
 
     # Slice using 'board[tuple(zip(*pos))]'

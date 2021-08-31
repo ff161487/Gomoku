@@ -13,7 +13,6 @@ def make_board():
 
     # Test scoring
     score, dp = compute_move(board, pos_l[-1])
-    points = dist2points(board)
     set_trace()
 
 
