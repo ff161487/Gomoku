@@ -1,5 +1,5 @@
 from easyAI import AI_Player, Negamax, Human_Player
-from gomoku import Gomoku
+from gomoku_1 import Gomoku
 from pdb import set_trace
 
 
