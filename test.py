@@ -1,5 +1,5 @@
 import numpy as np
-from gmk_score_1 import compute_move, ptt_row, str_pos, sort_moves
+from gmk_score_2 import compute_move, str_pos, sort_moves, scan_kb
 from random import sample
 from pdb import set_trace
 
@@ -30,11 +30,6 @@ def test_score():
     set_trace()
 
 
-def test_ptt_row():
-    row = np.array([1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1])
-    ptt_row(row, 0, 1)
-
-
 def test_sort():
     mvs = ['H8', 'I7', 'G7', 'H7', 'I9', 'F6', 'J10']
     pos_l = [str_pos(x, 'to_pos') for x in mvs]
@@ -47,8 +42,15 @@ def test_sort():
     set_trace()
 
 
+def test_scan_kb():
+    # Define 'pattern vector', 'defense point list' and 'black-blank segments'
+    ptt = np.zeros(7, dtype='uint8')
+    arr = np.array([1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1])
+    scan_kb(arr, ptt)
+
+
 if __name__ == '__main__':
     # make_board()
-    test_sort()
+    test_scan_kb()
     # test_ptt_row()
 

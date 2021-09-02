@@ -49,48 +49,37 @@ def find_seg(cond):
 
 
 def ep_encode(ep):
-    if ep == [-1, -1, 0]:
+    if ep == np.array([1]):
         return 0
-    elif ep[:2] == [-1, -1] and ep[2] > 0:
+    elif ep == np.array([0, 1]):
         return 1
-    elif ep == [2, 0, 0]:
+    elif ep == np.array([0, 0, 1]):
         return 2
-    elif ep[:2] == [2, 0] and ep[2] > 0:
+    elif ep == np.array([1, 0, 1]):
         return 3
-    elif ep[0] == 2 and ep[1] > 0:
+    elif ep == np.array([0, 0, 0, 1]):
         return 4
-    elif ep[0] == 3:
+    elif ep == np.array([0, 1, 0, 1]):
         return 5
-    elif ep[0] > 3:
+    elif ep == np.array([1, 0, 0, 1]):
         return 6
+    elif ep == np.array([1, 1, 0, 1]):
+        return 7
 
 
-def ss_encode(ss, n_a, ptt, dp):
-    idx_ptt, idx_dp, str_dp = None, None, None
-    ss = ss[ss[:, 0] > -1]
-    ss_d = np.diff(ss, axis=0)
-    # Opened Two & Blocked Two with 2 stones
-    if ss_d.shape == (1, 2) and ss_d[0, 0] == 1:
-        # Opened Two
-        if ss_d[0, 1] <= 3 and ss[0, 1] > 0 and ss[1, 1] < n_a - 1:
-            idx_ptt = 5
-        # Blocked Two
-        elif ss_d[0, 1] == 4 or (ss_d[0, 1] <= 3 and (ss[0, 1] == 0 or ss[1, 1] == n_a - 1)):
-            idx_ptt = 6
-    elif ss_d.shape == (2, 2) and ss_d[:, 0] == np.ones(2, dtype='int8'):
-        set_trace()
-    return idx_ptt, idx_dp, str_dp
-
-
-def scan_kb(arr, pos, ptt, dp):
+def scan_kb(arr, ptt):
     n_a = len(arr)
     seg_k = find_seg(arr > 0)
     scanned = []
 
     # Search for 'Five(or more) in a Row', if find it, just win
     for i, seg in enumerate(seg_k):
-        if i not in scanned and seg[1] - seg[0] > 0:
+        if i not in scanned:
             scanned.append(i)
+            # Endpoint Encoding
+            vec_l, vec_r = arr[:(seg[0] + 1)][-4:], arr[seg[1]:][::-1][-4:]
+            epe = (ep_encode(vec_l), ep_encode(vec_r))
+
             if seg[1] - seg[0] >= 4:
                 # Win by connected 5 or more
                 ptt[0] += 1
@@ -99,42 +88,25 @@ def scan_kb(arr, pos, ptt, dp):
                 # Opened Four
                 if seg[0] > 0 and seg[1] < n_a - 1:
                     ptt[1] += 1
-                    dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
                 # Blocked Four
-                elif seg[0] == 0:
+                else:
                     ptt[2] += 1
-                    dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
-                elif seg[1] == n_a - 1:
-                    ptt[2] += 1
-                    dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
-                if i > 0:
-                    if seg[0] - seg_k[i - 1][1] == 2:
-                        scanned.append(i - 1)
-                if i < len(seg_k) - 1:
-                    if seg_k[i + 1][0] - seg[1] == 2:
-                        scanned.append(i + 1)
+                if epe[0] in [3, 5, 7]:
+                    scanned.append(i - 1)
+                if epe[1] in [3, 5, 7]:
+                    scanned.append(i + 1)
             elif seg[1] - seg[0] == 2:
-                cond_l = False
-                cond_r = False
-                if i > 0:
-                    if seg[0] - seg_k[i - 1][1] == 2:
-                        scanned.append(i - 1)
-                        cond_l = True
-                if i < len(seg_k) - 1:
-                    if seg_k[i + 1][0] - seg[1] == 2:
-                        scanned.append(i + 1)
-                        cond_r = True
+                cond_l, cond_r = (epe[0] in [3, 5, 7]), (epe[1] in [3, 5, 7])
+                if cond_l:
+                    scanned.append(i - 1)
+                if cond_r:
+                    scanned.append(i + 1)
                 # Opened Four
                 if cond_l and cond_r:
                     ptt[1] += 1
-                    dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
                 # Blocked Four
-                elif cond_r and not cond_l:
+                elif cond_l + cond_r == 1:
                     ptt[2] += 1
-                    dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
-                elif cond_l and not cond_r:
-                    ptt[2] += 1
-                    dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
                 else:
                     # Blocked Three
                     if seg[0] == 0:
@@ -288,16 +260,23 @@ def scan_kb(arr, pos, ptt, dp):
             set_trace()
 
 
-def scan_kbw(arr, pos):
+def scan_kbw(arr, idx, ply_stone):
+    # Copy array and set the given position to stone value
+    arr_c = arr.copy()
+    arr_c[idx] = ply_stone
+    arr_c = ply_stone * arr_c  # Set ply = 1 and op = -1
+
     # Define 'pattern vector', 'defense point list' and 'black-blank segments'
     ptt = np.zeros(7, dtype='uint8')
-    dp = [[], [], []]
+
+    # Scan all segments separate by opponent's stone
     seg_kb = find_seg(arr > -1)
     for seg in seg_kb:
+        # If the segment length is less than 5, we can ignore it
         if seg[1] - seg[0] >= 4:
-            scan_kb(arr[seg[0]:(seg[1] + 1)], pos[seg[0]:(seg[1] + 1)], ptt, dp)
+            scan_kb(arr[seg[0]:(seg[1] + 1)], ptt)
     set_trace()
-    return ptt, dp
+    return ptt
 
 
 def compute_move(board, pos, ply_stone):
@@ -314,18 +293,18 @@ def compute_move(board, pos, ply_stone):
                                   board[tuple(zip(*pos_a))].copy())
 
     # Compute score for player's side (Attack score)
-    ptt_h = ptt_row(arr_h, idx_h, ply_stone)
-    ptt_v = ptt_row(arr_v, idx_v, ply_stone)
-    ptt_d = ptt_row(arr_d, idx_d, ply_stone)
-    ptt_a = ptt_row(arr_a, idx_a, ply_stone)
+    ptt_h = scan_kbw(arr_h, idx_h, ply_stone)
+    ptt_v = scan_kbw(arr_v, idx_v, ply_stone)
+    ptt_d = scan_kbw(arr_d, idx_d, ply_stone)
+    ptt_a = scan_kbw(arr_a, idx_a, ply_stone)
     ptt = ptt_h + ptt_v + ptt_d + ptt_a
     sc_a = heuristic(ptt)
 
     # Compute score for opponent's side if opponent places their stone at the given position (Defense score)
-    ptt_hd = ptt_row(arr_h, idx_h, -ply_stone)
-    ptt_vd = ptt_row(arr_v, idx_v, -ply_stone)
-    ptt_dd = ptt_row(arr_d, idx_d, -ply_stone)
-    ptt_ad = ptt_row(arr_a, idx_a, -ply_stone)
+    ptt_hd = scan_kbw(arr_h, idx_h, -ply_stone)
+    ptt_vd = scan_kbw(arr_v, idx_v, -ply_stone)
+    ptt_dd = scan_kbw(arr_d, idx_d, -ply_stone)
+    ptt_ad = scan_kbw(arr_a, idx_a, -ply_stone)
     ptt_d = ptt_hd + ptt_vd + ptt_dd + ptt_ad
     sc_d = heuristic(ptt_d)
 
