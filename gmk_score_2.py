@@ -70,16 +70,18 @@ def ep_encode(ep):
 def scan_kb(arr, ptt):
     n_a = len(arr)
     seg_k = find_seg(arr > 0)
+    neg_len_seg = [seg[0] - seg[1] for seg in seg_k]
+    itr = [(idx, seg_k[idx]) for idx in np.argsort(neg_len_seg)]
     scanned = []
 
     # Search for 'Five(or more) in a Row', if find it, just win
-    for i, seg in enumerate(seg_k):
+    for i, seg in itr:
         if i not in scanned:
             scanned.append(i)
             # Endpoint Encoding
             vec_l, vec_r = arr[:(seg[0] + 1)][-4:], arr[seg[1]:][::-1][-4:]
             epe = (ep_encode(vec_l), ep_encode(vec_r))
-
+            set_trace()
             if seg[1] - seg[0] >= 4:
                 # Win by connected 5 or more
                 ptt[0] += 1

@@ -45,7 +45,7 @@ def test_sort():
 def test_scan_kb():
     # Define 'pattern vector', 'defense point list' and 'black-blank segments'
     ptt = np.zeros(7, dtype='uint8')
-    arr = np.array([1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1])
+    arr = np.array([1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1])
     scan_kb(arr, ptt)
 
 
