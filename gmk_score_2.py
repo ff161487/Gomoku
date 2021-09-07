@@ -49,21 +49,21 @@ def find_seg(cond):
 
 
 def ep_encode(ep):
-    if ep == np.array([1]):
+    if np.array_equal(ep, np.array([1])):
         return 0
-    elif ep == np.array([0, 1]):
+    elif np.array_equal(ep, np.array([0, 1])):
         return 1
-    elif ep == np.array([0, 0, 1]):
+    elif np.array_equal(ep, np.array([0, 0, 1])):
         return 2
-    elif ep == np.array([1, 0, 1]):
+    elif np.array_equal(ep, np.array([1, 0, 1])):
         return 3
-    elif ep == np.array([0, 0, 0, 1]):
+    elif np.array_equal(ep, np.array([0, 0, 0, 1])):
         return 4
-    elif ep == np.array([0, 1, 0, 1]):
+    elif np.array_equal(ep, np.array([0, 1, 0, 1])):
         return 5
-    elif ep == np.array([1, 0, 0, 1]):
+    elif np.array_equal(ep, np.array([1, 0, 0, 1])):
         return 6
-    elif ep == np.array([1, 1, 0, 1]):
+    elif np.array_equal(ep, np.array([1, 1, 0, 1])):
         return 7
 
 
@@ -81,7 +81,7 @@ def scan_kb(arr, ptt):
             # Endpoint Encoding
             vec_l, vec_r = arr[:(seg[0] + 1)][-4:], arr[seg[1]:][::-1][-4:]
             epe = (ep_encode(vec_l), ep_encode(vec_r))
-            set_trace()
+
             if seg[1] - seg[0] >= 4:
                 # Win by connected 5 or more
                 ptt[0] += 1
@@ -117,56 +117,30 @@ def scan_kb(arr, ptt):
                     else:
                         ptt[3] += 1
             elif seg[1] - seg[0] == 1:
-                ep_l, ep_r = [-1, -1, 0], [-1, -1, 0]
-                if i > 0:
-                    ep_l = [seg[0] - seg_k[i - 1][1], seg_k[i - 1][1] - seg_k[i - 1][0], seg_k[i - 1][0]]
-                else:
-                    ep_l[2] = seg[0]
-                if i < len(seg_k) - 1:
-                    ep_r = [seg_k[i + 1][0] - seg[1], seg_k[i + 1][1] - seg_k[i + 1][0], n_a - 1 - seg_k[i + 1][1]]
-                else:
-                    ep_r[2] = n_a - 1 - seg[1]
-                epe = (ep_encode(ep_l), ep_encode(ep_r))
-
                 # Opened Four
-                if epe == (4, 4):
+                if epe == (7, 7):
                     ptt[1] += 1
-                    dp[0].append('_'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
                     scanned.extend([i - 1, i + 1])
                 # Blocked Four
-                elif epe[0] == 4 and epe[1] != 4:
+                elif epe[0] == 7 and epe[1] != 7:
                     ptt[2] += 1
-                    dp[0].append(str_pos(pos[seg[0] - 1], 'to_str'))
                     scanned.append(i - 1)
-                elif epe[1] == 4 and epe[0] != 4:
+                elif epe[1] == 7 and epe[0] != 7:
                     ptt[2] += 1
-                    dp[0].append(str_pos(pos[seg[1] + 1], 'to_str'))
                     scanned.append(i + 1)
                 # Opened Three
-                if epe == (3, 3):
+                if epe == (5, 5):
                     ptt[3] += 1
-                    p1, p2, p3, p4 = (str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
-                                      str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 3], 'to_str'))
-                    dp[1].append('{1}({2},{3})-{2}({0},{1})'.format(p1, p2, p3, p4))
                     scanned.extend([i - 1, i + 1])
-                elif epe[0] == 3 and epe[1] not in [0, 4]:
+                elif epe[0] == 5 and epe[1] != 5 and 1 <= epe[1] <= 6 or epe == (3, 6):
                     ptt[3] += 1
-                    p1, p2, p3 = (str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
-                                  str_pos(pos[seg[1] + 1], 'to_str'))
-                    dp[1].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
                     scanned.append(i - 1)
-                elif epe[1] == 3 and epe[0] not in [0, 4]:
+                elif epe[1] == 5 and epe[0] != 5 and 1 <= epe[0] <= 6 or epe == (6, 3):
                     ptt[3] += 1
-                    p1, p2, p3 = (str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'),
-                                  str_pos(pos[seg[1] + 3], 'to_str'))
-                    dp[1].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
                     scanned.append(i + 1)
                 # Blocked Three
-                if epe == (5, 5):
+                if epe == (6, 6):
                     ptt[4] += 1
-                    p1, p2, p3, p4 = (str_pos(pos[seg[0] - 2], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
-                                      str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 2], 'to_str'))
-                    dp[2].append('{0}-{1}_{2}-{3}'.format(p1, p2, p3, p4))
                     scanned.extend([i - 1, i + 1])
                 elif epe in [(5, 0), (5, 1), (5, 6)]:
                     ptt[4] += 1
@@ -211,39 +185,6 @@ def scan_kb(arr, ptt):
                 # Blocked Two
                 elif epe in [(0, 1), (1, 0), (0, 6), (6, 0)]:
                     ptt[6] += 1
-
-    # The 'leftover' will be 'single-stone segment'
-    un_scanned = [j for j in range(len(seg_k)) if j not in scanned]
-    while len(un_scanned) > 0:
-        j = un_scanned.pop(0)  # Take the first element out of un_scanned
-        scanned.append(j)  # Append this element to scanned
-
-        # Define 'single-stone' pattern matrix
-        ss = np.full((4, 2), -1, 'int8')
-        ss[0] = [j, seg_k[j][0]]
-        if len(un_scanned) > 0:
-            ss[1] = [un_scanned[0], seg_k[un_scanned[0]][0]]
-            if len(un_scanned) > 1:
-                ss[2] = [un_scanned[1], seg_k[un_scanned[1]][0]]
-                if len(un_scanned) > 2:
-                    ss[3] = [un_scanned[2], seg_k[un_scanned[2]][0]]
-
-        # Encode pattern and recognition
-        ss_encode(ss, n_a, ptt, dp)
-        set_trace()
-        if (j + 1) in un_scanned:
-            dis = seg_k[j + 1][0] - seg_k[j][0]
-            if dis <= 4:
-                un_scanned.pop(0)
-                scanned.append(j + 1)
-                if dis > 2:
-                    if seg_k[j][0] > 0 and seg_k[j + 1][0] < n_a - 1:
-
-                        ptt[5] += 1
-                        set_trace()
-                else:
-                    set_trace()
-            set_trace()
 
 
 def scan_kbw(arr, idx, ply_stone):
