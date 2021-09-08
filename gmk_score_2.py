@@ -139,51 +139,21 @@ def scan_kb(arr, ptt):
                     ptt[3] += 1
                     scanned.append(i + 1)
                 # Blocked Three
-                if epe == (6, 6):
+                if epe in [(3, 3), (6, 6)]:
                     ptt[4] += 1
                     scanned.extend([i - 1, i + 1])
-                elif epe in [(5, 0), (5, 1), (5, 6)]:
+                elif epe[0] in [3, 6] and epe[1] in [0, 1, 2, 4]:
                     ptt[4] += 1
-                    dp[2].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[0] - 2], 'to_str'))))
                     scanned.append(i - 1)
-                elif epe in [(0, 5), (1, 5), (6, 5)]:
+                elif epe[1] in [3, 6] and epe[0] in [0, 1, 2, 4]:
                     ptt[4] += 1
-                    dp[2].append('-'.join((str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 2], 'to_str'))))
                     scanned.append(i + 1)
-                elif epe == (5, 2):
-                    ptt[4] += 1
-                    p1, p2, p3 = (str_pos(pos[seg[0] - 2], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'),
-                                  str_pos(pos[seg[1] + 1], 'to_str'))
-                    dp[2].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
-                    scanned.extend([i - 1, i + 1])
-                elif epe == (2, 5):
-                    ptt[4] += 1
-                    p1, p2, p3 = (str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'),
-                                  str_pos(pos[seg[1] + 2], 'to_str'))
-                    dp[2].append('{1}-{0}({1},{2})-{2}({0},{1})'.format(p1, p2, p3))
-                    scanned.extend([i - 1, i + 1])
-                elif epe in [(6, 2), (2, 2), (1, 2), (2, 1), (2, 6)]:
-                    ptt[4] += 1
-                    dp[2].append('-'.join((str_pos(pos[seg[0] - 1], 'to_str'), str_pos(pos[seg[1] + 1], 'to_str'))))
-                    if epe == (2, 2):
-                        scanned.extend([i - 1, i + 1])
-                    elif epe in [(6, 2), (1, 2)]:
-                        scanned.append(i + 1)
-                    elif epe in [(2, 6), (2, 1)]:
-                        scanned.append(i - 1)
-                elif epe == (3, 0):
-                    ptt[4] += 1
-                    dp[2].append('-'.join((str_pos(pos[seg[0] - 3], 'to_str'), str_pos(pos[seg[0] - 1], 'to_str'))))
-                    scanned.append(i - 1)
-                elif epe == (0, 3):
-                    ptt[4] += 1
-                    dp[2].append('-'.join((str_pos(pos[seg[1] + 1], 'to_str'), str_pos(pos[seg[1] + 3], 'to_str'))))
-                    scanned.append(i + 1)
+
                 # Opened Two
-                elif epe in [(1, 1), (1, 6), (6, 1), (6, 6)]:
+                elif epe in [(2, 2), (1, 4), (4, 1), (4, 4), (2, 4), (4, 2)]:
                     ptt[5] += 1
                 # Blocked Two
-                elif epe in [(0, 1), (1, 0), (0, 6), (6, 0)]:
+                elif epe in [(0, 4), (4, 0), (2, 1), (1, 2)]:
                     ptt[6] += 1
 
 
@@ -197,12 +167,11 @@ def scan_kbw(arr, idx, ply_stone):
     ptt = np.zeros(7, dtype='uint8')
 
     # Scan all segments separate by opponent's stone
-    seg_kb = find_seg(arr > -1)
+    seg_kb = find_seg(arr_c > -1)
     for seg in seg_kb:
         # If the segment length is less than 5, we can ignore it
         if seg[1] - seg[0] >= 4:
             scan_kb(arr[seg[0]:(seg[1] + 1)], ptt)
-    set_trace()
     return ptt
 
 
@@ -211,8 +180,8 @@ def compute_move(board, pos, ply_stone):
     assert board[pos] == 0
 
     # Get board array and position array
-    pos_h = [(pos[0], x) for x in range(15)]
-    pos_v = [(x, pos[1]) for x in range(15)]
+    # pos_h = [(pos[0], x) for x in range(15)]
+    # pos_v = [(x, pos[1]) for x in range(15)]
     pos_d = [(pos[0] + x, pos[1] + x) for x in range(-min(pos), 15 - max(pos))]
     pos_a = [(pos[0] + x, pos[1] - x) for x in range(-min(pos[0], 14 - pos[1]), min(14 - pos[0], pos[1]) + 1)]
     idx_h, idx_v, idx_d, idx_a = pos[1], pos[0], pos_d.index(pos), pos_a.index(pos)
@@ -236,6 +205,7 @@ def compute_move(board, pos, ply_stone):
     sc_d = heuristic(ptt_d)
 
     # We give a weight of 0.5 to defense
+    set_trace()
     score = sc_a + sc_d / 2
     return score
 
