@@ -171,7 +171,7 @@ def scan_kbw(arr, idx, ply_stone):
     for seg in seg_kb:
         # If the segment length is less than 5, we can ignore it
         if seg[1] - seg[0] >= 4:
-            scan_kb(arr[seg[0]:(seg[1] + 1)], ptt)
+            scan_kb(arr_c[seg[0]:(seg[1] + 1)], ptt)
     return ptt
 
 
@@ -203,27 +203,55 @@ def compute_move(board, pos, ply_stone):
     ptt_ad = scan_kbw(arr_a, idx_a, -ply_stone)
     ptt_d = ptt_hd + ptt_vd + ptt_dd + ptt_ad
     sc_d = heuristic(ptt_d)
-
-    # We give a weight of 0.5 to defense
-    set_trace()
-    score = sc_a + sc_d / 2
-    return score
+    return sc_a, sc_d
 
 
-def sort_moves(board, ply_stone, n_top=None):
+def sort_moves(board, ply_stone, name):
     # Generate list of blank positions
     pos_l = [tuple(x) for x in np.transpose((board == 0).nonzero())]
 
-    # Translate into string format positions
-    mv_s = [str_pos(x, 'to_str') for x in pos_l]
+    # For Human Player, return all moves
+    if name == 'Human':
+        # Translate all positions into string format
+        mv_s = [str_pos(x, 'to_str') for x in pos_l]
 
-    # Compute scores for each move
-    sc_l = [compute_move(board, pos, ply_stone) for pos in pos_l]
-    sc_order = np.argsort(sc_l)[::-1]
+    # For AI Player, we prune some moves by first-layer evaluation
+    elif name == 'AI':
+        # Compute score for all moves
+        sc_a, sc_d = np.ones(len(pos_l)), np.ones(len(pos_l))
+        for i, pos in enumerate(pos_l):
+            sc_a[i], sc_d[i] = compute_move(board, pos, ply_stone)
+        sc = sc_a + 0.5 * sc_d
+        sca_max, scd_max = sc_a.max(), sc_d.max()
 
-    # Sort moves according to order
-    if n_top is None:
-        pm_l = [mv_s[i] for i in sc_order]
-    else:
-        pm_l = [mv_s[i] for i in sc_order[:n_top]]
-    return pm_l
+        # Return moves with pruning
+        if sca_max == 100000:
+            idx_l = [i for i in range(len(pos_l)) if sc_a[i] == 100000]
+        elif scd_max == 100000:
+            idx_l = [i for i in range(len(pos_l)) if sc_d[i] == 100000]
+        elif sca_max == 10000:
+            idx_l = [i for i in range(len(pos_l)) if sc_a[i] == 10000]
+        elif scd_max == 10000:
+            idx_l = [i for i in range(len(pos_l)) if sc_d[i] == 10000 or sc_a[i] in [7500, 500]]
+        elif sca_max == 7500:
+            cond_l = [i for i in range(len(pos_l)) if sc_a[i] in [7500, 500] and sc_d[i] in [7500, 500]]
+            if len(cond_l) > 0:
+                idx_l = [i for i in range(len(pos_l)) if sc[i] >= 3.5]
+            else:
+                idx_l = [i for i in range(len(pos_l)) if sc_a[i] == 7500]
+        elif scd_max == 7500:
+            cond_l = [i for i in range(len(pos_l)) if sc_a[i] == 500 and sc_d[i] in [7500, 500]]
+            if len(cond_l) > 0:
+                idx_l = [i for i in range(len(pos_l)) if sc[i] >= 3.5]
+            else:
+                idx_l = [i for i in range(len(pos_l)) if sc_d[i] == 7500]
+        else:
+            # Currently not optimized for multiple "Opened Three" cases
+            idx_l = [i for i in range(len(pos_l)) if sc[i] >= 3.5]
+
+        # Sort positions by scores
+        sc_l = [sc[i] for i in idx_l]
+        sc_order = np.argsort(sc_l)[::-1]
+        mv_s = [str_pos(pos_l[idx_l[x]], 'to_str') for x in sc_order]
+
+    return mv_s

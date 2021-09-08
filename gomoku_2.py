@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from easyAI import TwoPlayerGame
-from gmk_score_1 import str_pos, compute_move, sort_moves
+from gmk_score_2 import str_pos, compute_move, sort_moves
 from pdb import set_trace
 
 plt.ion()
@@ -26,17 +26,15 @@ class Gomoku(TwoPlayerGame):
             return ['H8']
         else:
             ply_stone = self.opponent_index - self.current_player
-            if self.player.name == 'AI':
-                pm_l = sort_moves(self.board, ply_stone, n_top=10)
-            elif self.player.name == 'Human':
-                pm_l = sort_moves(self.board, ply_stone)
+            pm_l = sort_moves(self.board, ply_stone, self.player.name)
             return pm_l
 
     def make_move(self, move):
         # Compute score and change board
         ply_stone = self.opponent_index - self.current_player
         pos = str_pos(move, 'to_pos')
-        sc = compute_move(self.board, pos, ply_stone)
+        sc_a, sc_d = compute_move(self.board, pos, ply_stone)
+        sc = sc_a + 0.5 * sc_d
         self.scores.append(sc)
         self.board[pos[0], pos[1]] = ply_stone
 

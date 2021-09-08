@@ -1,5 +1,5 @@
 from easyAI import AI_Player, Negamax, TranspositionTable
-from gomoku_1 import Gomoku
+from gomoku_2 import Gomoku
 from pdb import set_trace
 
 
