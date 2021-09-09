@@ -49,22 +49,13 @@ def find_seg(cond):
 
 
 def ep_encode(ep):
-    if np.array_equal(ep, np.array([1])):
-        return 0
-    elif np.array_equal(ep, np.array([0, 1])):
-        return 1
-    elif np.array_equal(ep, np.array([0, 0, 1])):
-        return 2
-    elif np.array_equal(ep, np.array([1, 0, 1])):
-        return 3
-    elif np.array_equal(ep, np.array([0, 0, 0, 1])):
-        return 4
-    elif np.array_equal(ep, np.array([0, 1, 0, 1])):
-        return 5
-    elif np.array_equal(ep, np.array([1, 0, 0, 1])):
-        return 6
-    elif np.array_equal(ep, np.array([1, 1, 0, 1])):
-        return 7
+    n_ep = len(ep)
+    rst = n_ep - 1
+    if n_ep == 3:
+        rst += ep[0]
+    elif n_ep == 4:
+        rst += 1 + 2 * ep[0] + ep[1]
+    return rst
 
 
 def scan_kb(arr, ptt):
@@ -218,7 +209,8 @@ def sort_moves(board, ply_stone, name):
     # For AI Player, we prune some moves by first-layer evaluation
     elif name == 'AI':
         # Compute score for all moves
-        sc_a, sc_d = np.ones(len(pos_l)), np.ones(len(pos_l))
+        n_pos = len(pos_l)
+        sc_a, sc_d = np.ones(n_pos), np.ones(n_pos)
         for i, pos in enumerate(pos_l):
             sc_a[i], sc_d[i] = compute_move(board, pos, ply_stone)
         sc = sc_a + 0.5 * sc_d
@@ -226,28 +218,31 @@ def sort_moves(board, ply_stone, name):
 
         # Return moves with pruning
         if sca_max == 100000:
-            idx_l = [i for i in range(len(pos_l)) if sc_a[i] == 100000]
+            idx_l = [i for i in range(n_pos) if sc_a[i] == 100000]
         elif scd_max == 100000:
-            idx_l = [i for i in range(len(pos_l)) if sc_d[i] == 100000]
+            idx_l = [i for i in range(n_pos) if sc_d[i] == 100000]
         elif sca_max == 10000:
-            idx_l = [i for i in range(len(pos_l)) if sc_a[i] == 10000]
+            idx_l = [i for i in range(n_pos) if sc_a[i] == 10000]
         elif scd_max == 10000:
-            idx_l = [i for i in range(len(pos_l)) if sc_d[i] == 10000 or sc_a[i] in [7500, 500]]
+            idx_l = [i for i in range(n_pos) if sc_d[i] == 10000 or sc_a[i] in [7500, 500]]
         elif sca_max == 7500:
-            cond_l = [i for i in range(len(pos_l)) if sc_a[i] in [7500, 500] and sc_d[i] in [7500, 500]]
+            cond_l = [i for i in range(n_pos) if sc_a[i] in [7500, 500] and sc_d[i] in [7500, 500]]
             if len(cond_l) > 0:
-                idx_l = [i for i in range(len(pos_l)) if sc[i] >= 3.5]
+                idx_l = [i for i in range(n_pos) if sc[i] >= 3.5]
             else:
-                idx_l = [i for i in range(len(pos_l)) if sc_a[i] == 7500]
+                idx_l = [i for i in range(n_pos) if sc_a[i] == 7500]
         elif scd_max == 7500:
-            cond_l = [i for i in range(len(pos_l)) if sc_a[i] == 500 and sc_d[i] in [7500, 500]]
+            cond_l = [i for i in range(n_pos) if sc_a[i] == 500 and sc_d[i] in [7500, 500]]
             if len(cond_l) > 0:
-                idx_l = [i for i in range(len(pos_l)) if sc[i] >= 3.5]
+                idx_l = [i for i in range(n_pos) if sc[i] >= 3.5]
             else:
-                idx_l = [i for i in range(len(pos_l)) if sc_d[i] == 7500]
+                idx_l = [i for i in range(n_pos) if sc_d[i] == 7500]
+        elif 20 <= sca_max <= 2000 or 20 <= scd_max <= 2000:
+            idx_l = [i for i in range(n_pos) if sc[i] >= 11]
+        elif 3 <= sca_max < 20 or 3 <= scd_max < 20:
+            idx_l = [i for i in range(n_pos) if sc[i] >= 2.5]
         else:
-            # Currently not optimized for multiple "Opened Three" cases
-            idx_l = [i for i in range(len(pos_l)) if sc[i] >= 3.5]
+            idx_l = list(range(n_pos))
 
         # Sort positions by scores
         sc_l = [sc[i] for i in idx_l]

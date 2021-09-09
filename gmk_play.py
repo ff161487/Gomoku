@@ -5,8 +5,8 @@ from pdb import set_trace
 
 def play_gomoku():
     ply_1 = Human_Player()
-    ply_2 = AI_Player(Negamax(4))
-    game = Gomoku([ply_1, ply_2], moves=['H8', 'I7'], show='play')
+    ply_2 = AI_Player(Negamax(2))
+    game = Gomoku([ply_1, ply_2], moves=['H8', 'I7'], show='test')
     game.play()
     set_trace()
 
