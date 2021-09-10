@@ -53,7 +53,7 @@ class Gomoku(TwoPlayerGame):
         self.moves.remove(move)
 
     def ttentry(self):
-        return "".join(self.moves)
+        return "-".join(self.moves)
 
     def show(self):
         if self.display == "play":
