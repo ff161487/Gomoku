@@ -16,7 +16,7 @@ class Gomoku(TwoPlayerGame):
             for i in range(len(moves)):
                 pos = str_pos(moves[i], 'to_pos')
                 self.board[pos[0], pos[1]] = 1 - 2 * (i % 2)
-        self.current_player = 1  # player 1 starts.
+        self.current_player = 1 + len(moves) % 2  # which player starts depends on the length of moves.
         self.moves = moves  # Record players' moves.
         self.scores = []
         self.display = show
@@ -27,6 +27,7 @@ class Gomoku(TwoPlayerGame):
         else:
             ply_stone = self.opponent_index - self.current_player
             pm_l = sort_moves(self.board, ply_stone, self.player.name)
+            set_trace()
             return pm_l
 
     def make_move(self, move):
@@ -53,7 +54,7 @@ class Gomoku(TwoPlayerGame):
         self.moves.remove(move)
 
     def ttentry(self):
-        return "-".join(self.moves)
+        return "-".join(sorted(self.moves[0::2])) + '_' + "-".join(sorted(self.moves[1::2]))
 
     def show(self):
         if self.display == "play":

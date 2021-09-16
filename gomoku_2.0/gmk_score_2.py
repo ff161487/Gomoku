@@ -40,12 +40,28 @@ def heuristic(ptt):
 
 
 def find_seg(cond):
-    scv = np.zeros(len(cond) + 2, dtype=bool)
-    scv[0], scv[-1] = False, False
-    scv[1:-1] = cond
-    start = np.nonzero(cond & ~scv[:-2])[0]
-    end = np.nonzero(cond & ~scv[2:])[0]
-    return list(zip(start, end))
+    n = len(cond)
+    rst = []
+    start, end = None, None
+    for i in range(n):
+        if i < (n - 1):
+            if cond[i] and not cond[i + 1]:
+                end = i
+        else:
+            if cond[i]:
+                end = i
+        if i > 0:
+            if cond[i] and not cond[i - 1]:
+                start = i
+        else:
+            if cond[i]:
+                start = i
+
+        # Collect (start, end) pair and reset them to None
+        if start is not None and end is not None:
+            rst += [(start, end)]
+            start, end = None, None
+    return rst
 
 
 def ep_encode(ep):

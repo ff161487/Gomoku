@@ -1,7 +1,40 @@
 import numpy as np
-from gmk_score_2 import compute_move, str_pos, sort_moves, scan_kb, scan_kbw
+from gmk_score_2 import find_seg, compute_move, str_pos, sort_moves, scan_kb, scan_kbw
+from gmk_tt_para_1 import get_pm
 from random import sample
 from pdb import set_trace
+
+
+def fs_l(cond):
+    n = len(cond)
+    rst = []
+    start, end = None, None
+    for i in range(n):
+        if i < (n - 1):
+            if cond[i] and not cond[i + 1]:
+                end = i
+        else:
+            if cond[i]:
+                end = i
+        if i > 0:
+            if cond[i] and not cond[i - 1]:
+                start = i
+        else:
+            if cond[i]:
+                start = i
+
+        # Collect (start, end) pair and reset them to None
+        if start is not None and end is not None:
+            rst += [(start, end)]
+            start, end = None, None
+    return rst
+
+
+def test_find_seg():
+    cond_arr = np.array([True, True, False, True, True, True, False, True])
+    seg_l = find_seg(cond_arr)
+    seg_l1 = fs_l(cond_arr)
+    set_trace()
 
 
 def make_board():
@@ -70,8 +103,14 @@ def test_scan_kbw():
     set_trace()
 
 
+def test_pm():
+    mv = ['H8', 'H7', 'I7', 'K5', 'G9', 'F10', 'I8']
+
+    set_trace()
+
+
 if __name__ == '__main__':
-    test_sort_1()
+    test_pm()
     # make_board()
     # test_ptt_row()
 
