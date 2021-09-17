@@ -27,7 +27,6 @@ class Gomoku(TwoPlayerGame):
         else:
             ply_stone = self.opponent_index - self.current_player
             pm_l = sort_moves(self.board, ply_stone, self.player.name)
-            set_trace()
             return pm_l
 
     def make_move(self, move):

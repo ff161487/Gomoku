@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from pickle import dump
 from joblib import Parallel, delayed
 from easyAI import TranspositionTable
@@ -16,49 +15,34 @@ def str_pos(x, kind):
     return rst
 
 
-def ext_s(idx):
-    table = TranspositionTable()
-    table.from_file(f"{DIR}tt_{idx}.data")
-    rst = []
-    for key, value in table.d.items():
-        if value['depth'] == 3:
-            # Transform key to list format
-            mv_s = key.split('-')
-            mv_s.append(value['move'])
-
-            # Compute stone value for current player
-            ply_stone = 2 * (len(mv_s) % 2) - 1
-
-            # Make board
-            pos_l = [str_pos(x, 'to_pos') for x in mv_s]
-            board = np.zeros((15, 15), dtype='int8')
-            for i, pos in enumerate(pos_l):
-                board[pos] = 1 - 2 * (i % 2)
-            set_trace()
-
-            # Append to result list
-            rst += [{'Y': value['value'], 'P': ply_stone, 'X': board.flatten()}]
-
-    # Transfer to DataFrame
-    rst = pd.DataFrame.from_records(rst)
-    return rst
+def obs_s(key, value):
+    mv_k, mv_w = tuple(key.split('_'))
+    mv_k, mv_w = mv_k.split('-'), mv_w.split('-')
+    n_mvs = len(mv_k) + len(mv_w) + 1
+    last = 2 * (n_mvs % 2) - 1
+    board = np.zeros((15, 15), dtype='int8')
+    for black_stone in mv_k:
+        board[str_pos(black_stone, 'to_pos')] = 1
+    for white_stone in mv_w:
+        board[str_pos(white_stone, 'to_pos')] = -1
+    board[str_pos(value['move'], 'to_pos')] = last
+    board = last * board
+    return float(value['value']), board
 
 
 def gen_train():
-    tr = Parallel(n_jobs=-1, verbose=10)(delayed(ext_s)(idx) for idx in range(106))
-    tr = pd.concat(tr).reset_index(drop=True)
-
-    # From training set dataframe to numpy array
-    mat_tr = np.zeros((len(tr), 226))
-    mat_tr[:, 0] = tr['Y'].to_numpy()
-    for i in range(len(tr)):
-        mat_tr[i, 1:] = tr.loc[i, 'P'] * tr.loc[i, 'X']
-
-    # Save training set to local file
+    table = TranspositionTable()
+    table.from_file(f"{DIR}gtt.data")
+    rst = Parallel(n_jobs=-1, batch_size=1000, verbose=10)(
+        delayed(obs_s)(key, value) for key, value in table.d.items())
+    n_tt = len(table.d)
+    x_tr, y_tr = np.empty((n_tt, 15, 15), dtype='int8'), np.empty(n_tt, dtype='float64')
+    for i in range(n_tt):
+        y_tr[i], x_tr[i] = rst[i]
+    tr = (y_tr, x_tr)
     with open(f"{DIR}training.data", 'wb') as f:
-        dump(mat_tr, f)
+        dump(tr, f)
 
 
 if __name__ == '__main__':
-    # gen_train()
-    ext_s(0)
+    gen_train()

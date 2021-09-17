@@ -35,15 +35,16 @@ def n_moves(moves, n):
 
 def tt_s(idx, mv_i):
     table = TranspositionTable()
-    ai_1 = AI_Player(Negamax(2, tt=table))
-    ai_2 = AI_Player(Negamax(2, tt=table))
+    table.from_file(f"{DIR}gtt.data")
+    ai_1 = AI_Player(Negamax(4, tt=table))
+    ai_2 = AI_Player(Negamax(4, tt=table))
     game = Gomoku([ai_1, ai_2], moves=mv_i)
     game.play(verbose=False)
     table.to_file(f"{DIR}tt_{idx}.data")
 
 
 def tt_para():
-    mvs_v, mvs_d = n_moves(['H8', 'H7'], 4), n_moves(['H8', 'I7'], 4)
+    mvs_v, mvs_d = n_moves(['H8', 'H7'], 1), n_moves(['H8', 'I7'], 1)
     mvs = mvs_v + mvs_d
     mvs_str = [tt_entry(x) for x in mvs]
     mvs_df = pd.DataFrame({'moves': mvs, 'str': mvs_str}).drop_duplicates('str')

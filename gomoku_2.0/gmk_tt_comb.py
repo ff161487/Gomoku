@@ -23,4 +23,4 @@ def gtt(depth, n):
 
 
 if __name__ == '__main__':
-    gtt(2, 8166)
+    gtt(4, 22)
