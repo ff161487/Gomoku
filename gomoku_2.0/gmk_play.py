@@ -10,7 +10,7 @@ def play_gomoku():
     table = TranspositionTable()
     table.from_file(f"{DIR}gtt.data")
     ply_1 = Human_Player()
-    ply_2 = AI_Player(Negamax(3, tt=table))
+    ply_2 = AI_Player(Negamax(4, tt=table))
     game = Gomoku([ply_1, ply_2], moves=['H8', 'I7'], show='test')
     game.play()
     set_trace()

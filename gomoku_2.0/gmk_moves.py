@@ -1,6 +1,6 @@
 import pandas as pd
 from joblib import Parallel, delayed
-from easyAI import AI_Player, Negamax, TranspositionTable
+from easyAI import AI_Player, Negamax
 from gomoku_2 import Gomoku
 from pdb import set_trace
 
@@ -33,25 +33,23 @@ def n_moves(moves, n):
         return nml
 
 
-def tt_s(idx, mv_i):
-    table = TranspositionTable()
-    table.from_file(f"{DIR}gtt.data")
-    ai_1 = AI_Player(Negamax(4, tt=table))
-    ai_2 = AI_Player(Negamax(4, tt=table))
-    game = Gomoku([ai_1, ai_2], moves=mv_i)
-    game.play(verbose=False)
-    table.to_file(f"{DIR}tt_{idx}.data")
+def n_moves_df(moves, n):
+    mvs = n_moves(moves, n)
+    mvs_str = [tt_entry(x) for x in mvs]
+    mvs_df = pd.DataFrame({'moves': mvs, 'str': mvs_str}).drop_duplicates('str')
+    return mvs_df
 
 
-def tt_para():
-    mvs_v, mvs_d = n_moves(['H8', 'H7'], 2), n_moves(['H8', 'I7'], 2)
+def n_moves_para():
+    mvs_i = []
+    mvs_v, mvs_d = n_moves(['H8', 'H7'], 4), n_moves(['H8', 'I7'], 4)
     mvs = mvs_v + mvs_d
     mvs_str = [tt_entry(x) for x in mvs]
     mvs_df = pd.DataFrame({'moves': mvs, 'str': mvs_str}).drop_duplicates('str')
-    mvs = mvs_df['moves'].tolist()
+    rst = Parallel(n_jobs=-1, verbose=10)(delayed(n_moves_df)(mv, 4) for mv in mvs_df['moves'])
+    rst = pd.concat(rst).drop_duplicates('str').reset_index(drop=True)
     set_trace()
-    Parallel(n_jobs=-1, verbose=10)(delayed(tt_s)(i, mv) for i, mv in enumerate(mvs))
 
 
 if __name__ == '__main__':
-    tt_para()
+    n_moves_para()

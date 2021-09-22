@@ -9,6 +9,7 @@ def gomoku_AI_run():
     table = TranspositionTable()
     table.from_file(f"{DIR}gtt.data")
     print(len(table.d))
+    set_trace()
     ai_1 = AI_Player(Negamax(3, tt=table))
     ai_2 = AI_Player(Negamax(3, tt=table))
     game = Gomoku([ai_1, ai_2], moves=['H8', 'I7', 'G7'])
