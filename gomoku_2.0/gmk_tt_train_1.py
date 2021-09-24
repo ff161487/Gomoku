@@ -9,10 +9,11 @@ DIR = "/data/home/frankf/code_1/GMK_TT/"
 
 
 def train():
-    with open(f"{DIR}training.data", 'rb') as f:
+    with open(f"{DIR}train.data", 'rb') as f:
         y_tr, x_tr = load(f)
     n_stones = (x_tr != 0).sum(axis=(1, 2))
-    y_o, x_o = y_tr[np.abs(y_tr) >= 100000], x_tr[np.abs(y_tr) >= 100000]
+    y_5, x_5 = y_tr[y_tr >= 50000], x_tr[y_tr >= 50000]
+    y_1, x_1 = y_tr[y_tr == 2.5], x_tr[y_tr == 2.5]
     """
     df = pd.DataFrame({'Y': y_tr, 'n_stones': n_stones})
     sns.pairplot(df, kind='kde')

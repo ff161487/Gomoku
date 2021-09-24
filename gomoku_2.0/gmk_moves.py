@@ -42,13 +42,13 @@ def n_moves_df(moves, n):
 
 def n_moves_para():
     mvs_i = []
-    mvs_v, mvs_d = n_moves(['H8', 'H7'], 4), n_moves(['H8', 'I7'], 4)
+    mvs_v, mvs_d = n_moves(['H8', 'H7'], 2), n_moves(['H8', 'I7'], 2)
     mvs = mvs_v + mvs_d
     mvs_str = [tt_entry(x) for x in mvs]
     mvs_df = pd.DataFrame({'moves': mvs, 'str': mvs_str}).drop_duplicates('str')
-    rst = Parallel(n_jobs=-1, verbose=10)(delayed(n_moves_df)(mv, 4) for mv in mvs_df['moves'])
+    rst = Parallel(n_jobs=-1, verbose=10)(delayed(n_moves_df)(mv, 2) for mv in mvs_df['moves'])
     rst = pd.concat(rst).drop_duplicates('str').reset_index(drop=True)
-    set_trace()
+    rst.to_parquet(f"{DIR}mvs.pqt")
 
 
 if __name__ == '__main__':

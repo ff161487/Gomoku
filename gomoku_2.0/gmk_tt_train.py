@@ -40,7 +40,7 @@ def gen_train():
     for i in range(n_tt):
         y_tr[i], x_tr[i] = rst[i]
     tr = (y_tr, x_tr)
-    with open(f"{DIR}training.data", 'wb') as f:
+    with open(f"{DIR}train.data", 'wb') as f:
         dump(tr, f)
 
 
