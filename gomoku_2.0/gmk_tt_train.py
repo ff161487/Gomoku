@@ -18,14 +18,13 @@ def str_pos(x, kind):
 def obs_s(key, value):
     mv_k, mv_w = tuple(key.split('_'))
     mv_k, mv_w = mv_k.split('-'), mv_w.split('-')
-    n_mvs = len(mv_k) + len(mv_w) + 1
+    n_mvs = len(mv_k) + len(mv_w)
     last = 2 * (n_mvs % 2) - 1
     board = np.zeros((15, 15), dtype='int8')
     for black_stone in mv_k:
         board[str_pos(black_stone, 'to_pos')] = 1
     for white_stone in mv_w:
         board[str_pos(white_stone, 'to_pos')] = -1
-    board[str_pos(value['move'], 'to_pos')] = last
     board = last * board
     return float(value['value']), board
 
