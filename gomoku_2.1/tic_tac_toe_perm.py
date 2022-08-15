@@ -1,21 +1,21 @@
-from itertools import combinations_with_replacement
-from sympy.combinatorics import Permutation, PermutationGroup
+from itertools import combinations
+from sympy.combinatorics import Permutation
 from sympy import Matrix, PermutationMatrix, Identity
 from pdb import set_trace
 
 
 # noinspection PyPep8Naming
-def rp_perm(n=8, k=2):
+def rp_perm(k=2):
     # Step 1: Generate polynomial basis
-    x_l = [f"x_{i}" for i in range(n)]
-    m_l = [' * '.join(sorted(m)) for m in combinations_with_replacement(x_l, k)]
+    x_l = [f"x_{i}" for i in range(9)]
+    m_l = [' * '.join(sorted(m)) for m in combinations(x_l, k)]
 
     # Step 2: Find matrix representation of group generators
-    a = Permutation(0, 2, 4, 6)(1, 3, 5, 7)
-    b = Permutation(0, 3)(1, 2)(4, 7)(5, 6)
+    a = Permutation(1, 3, 5, 7)(2, 4, 6, 8)
+    b = Permutation(1, 5)(2, 4)(6, 8)
     x_l_a, x_l_b = a(x_l), b(x_l)
-    m_l_a = [' * '.join(sorted(m)) for m in combinations_with_replacement(x_l_a, k)]
-    m_l_b = [' * '.join(sorted(m)) for m in combinations_with_replacement(x_l_b, k)]
+    m_l_a = [' * '.join(sorted(m)) for m in combinations(x_l_a, k)]
+    m_l_b = [' * '.join(sorted(m)) for m in combinations(x_l_b, k)]
     a_p = [m_l.index(x) for x in m_l_a]
     b_p = [m_l.index(x) for x in m_l_b]
     a_p, b_p = Permutation(a_p), Permutation(b_p)
@@ -32,4 +32,4 @@ def rp_perm(n=8, k=2):
 
 
 if __name__ == '__main__':
-    rp_perm(k=4)
+    rp_perm(k=5)
