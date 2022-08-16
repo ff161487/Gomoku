@@ -1,6 +1,6 @@
 from itertools import combinations
 from sympy.combinatorics import Permutation
-from sympy import Matrix, PermutationMatrix, Identity
+from sympy import eye, Matrix
 from pdb import set_trace
 
 
@@ -19,11 +19,10 @@ def rp_perm(k=2):
     a_p = [m_l.index(x) for x in m_l_a]
     b_p = [m_l.index(x) for x in m_l_b]
     a_p, b_p = Permutation(a_p), Permutation(b_p)
-    a_pm, b_pm = PermutationMatrix(a_p), PermutationMatrix(b_p)
 
     # Step 3: Find common eigenvectors with unit eigenvalue
-    idm = Identity(len(m_l)).as_explicit()
-    AT, BT = a_pm.as_explicit().T, b_pm.as_explicit().T
+    idm = eye(len(m_l))
+    AT, BT = idm.permute(a_p).T, idm.permute(b_p).T
     M = Matrix([[idm - AT], [idm - BT]])
     null_vec = [vec.T for vec in M.nullspace()]
     m_l_m = Matrix(m_l)
@@ -32,4 +31,5 @@ def rp_perm(k=2):
 
 
 if __name__ == '__main__':
-    rp_perm(k=5)
+    rst = rp_perm(k=3)
+    set_trace()
