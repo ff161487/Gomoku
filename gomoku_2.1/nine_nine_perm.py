@@ -28,7 +28,7 @@ def rp_perm(k=2):
     null_vec = [vec.T for vec in M.nullspace()]
     m_l_m = Matrix(m_l)
     inv_poly_base = [n_v.dot(m_l_m) for n_v in null_vec]
-    set_trace()
+    return inv_poly_base
 
 
 if __name__ == '__main__':
